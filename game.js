@@ -6,66 +6,92 @@ function getComputerChoice() {
     } else if (random >= 1/3 && random < 2/3) {
         choice = "paper";
     } else {
-        choice = "scissor";
+        choice = "scissors";
     }
     return choice;
 }
 
-function playround(playerSelection, computerChoice = getComputerChoice()) {
-    let result;
+function playround(playerSelection, computerChoice) {
 
     if (playerSelection === computerChoice) {
-        result = `This is a tie! You both chose ${playerSelection}`;
-        console.log(result);
-        return result;
+        return `This is a tie! You both chose ${playerSelection}`;
     }
     
     switch (playerSelection) {
         case "rock":
             if (computerChoice === "paper") {
-                result = "You lose! Paper beats Rock";
-                break;
+                return "You lose! Paper beats Rock";
+                
             } else {
-                result = "You win! Rock beats Scissor";
-                break;
+                return "You win! Rock beats Scissors";   
             }
 
         case "paper":
-            if (computerChoice === "scissor") {
-                result = "You lose! Scissor beats Paper";
-                break;
+            if (computerChoice === "scissors") {
+                return "You lose! Scissors beats Paper";
+                
             } else {
-                result = "You win! Paper beats Rock";
-                break;
+                return "You win! Paper beats Rock";
             }
 
-        case "scissor":
+        case "scissors":
             if (computerChoice === "paper") {
-                result = "You win!  Scissor beats Paper";
-                break;
+                return "You win! Scissors beats Paper";
+                
             } else {
-                result = "You lose! Rock beats Scissor";
-                break;
+                return "You lose! Rock beats Scissors";
             }
     }
-    console.log(result);
-    return result;
-    
-    
 }
 
-function game() {
-    let rounds = 0;
+const buttons = document.querySelectorAll('button');
+const div = document.querySelector('div');
 
-    while (rounds < 5) {
-        let playerSelection = prompt("Choose your weapon: rock, paper or scissor?");
-        // play a round
-        playround(playerSelection, computerChoice = getComputerChoice());
-        // reset the computerChoice value
+let playerPoints = 0;
+let computerPoints = 0;
+
+buttons.forEach((button) => button.addEventListener('click', playRoundOnClick));
+
+//  Since this function is going to be passed to the addEventListener, the argument for it is the event object.
+function playRoundOnClick(e) {
+    
+        let result = playround(e.target.id, getComputerChoice());
+    
         
-        rounds++;
-    }
+        if (result.includes('win')) {
+            playerPoints++;
+            div.innerHTML = result + '<br>' + 'Player: ' + playerPoints + ', ' + 'Computer: ' + computerPoints;
+        } else if (result.includes('lose')) {
+            computerPoints++;
+            div.innerHTML = result + '<br>' + 'Player: ' + playerPoints + ', ' + 'Computer: ' + computerPoints;
+        } else {
+            div.innerHTML = result + '<br>' + 'Player: ' + playerPoints + ', ' + 'Computer: ' + computerPoints;
+        }
 
+        // Announce winner on first player that reaches 5 points. No more points should be summed, so buttons stop listening for clicks (we could've disabled the buttons as well)
+        if (playerPoints === 5 || computerPoints === 5) {
+            buttons.forEach((button) => button.removeEventListener('click', playRoundOnClick))
+            if (playerPoints === 5) {
+                div.innerHTML = '5 points reached! You win!';
+            } else {
+                div.innerHTML = '5 points reached! The Computer wins';
+            }
+            // Add a reset button after final click i.e. game has finished
+            const resetButton = document.createElement('button');
+            resetButton.textContent = 'Reset Game';
+            div.appendChild(resetButton);
+            resetButton.addEventListener('click', resetGame)
+        }
 }
 
-game();
+function resetGame() {
+    buttons.forEach((button) => button.addEventListener('click', playRoundOnClick));
+    div.innerHTML = '';
+    playerPoints = 0;
+    computerPoints = 0;
+}
+
+
+
+
+
